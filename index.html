@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>서초점 자판기 재고 체크리스트</title>
-
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -338,7 +339,7 @@ body.report-mode .shortage-summary h2 {
     </p>
 
     <p>
-        (간식류 보관 위치 - 프린터 좌측 슬라이딩 도어 비번)
+        (간식류 보관 위치 - 프린터 좌측 슬라이딩 도어)
     </p>
 
     <p>
@@ -626,6 +627,17 @@ function toggleReportMode() {
 
 createChecklist();
 
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+            .then(() => {
+                console.log("Service Worker 등록 완료");
+            })
+            .catch(error => {
+                console.log("Service Worker 등록 실패:", error);
+            });
+    });
+}
 </script>
 
 </body>

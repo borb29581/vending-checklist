@@ -1,0 +1,22 @@
+{
+  "name": "서초점 자판기 재고 체크리스트",
+  "short_name": "자판기 체크",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "description": "서초점 자판기 재고 점검용 체크리스트",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
