@@ -186,6 +186,143 @@
         font-size: 12px;
     }
 }  
+/* ===== 하단 버튼 ===== */
+
+.bottom-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.report-button,
+.reset-button {
+    flex: 1;
+    padding: 14px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 0;
+}
+
+
+/* ===== 보고용 화면 ===== */
+
+body.report-mode {
+    padding: 5px;
+    background: white;
+}
+
+body.report-mode .container {
+    max-width: 1000px;
+    padding: 8px;
+    border-radius: 0;
+}
+
+body.report-mode h1 {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+body.report-mode .notice {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    font-size: 9px;
+    line-height: 1.3;
+}
+
+body.report-mode .info {
+    margin-bottom: 8px;
+    font-size: 10px;
+}
+
+body.report-mode .info p {
+    margin: 4px 0;
+}
+
+body.report-mode .info input {
+    border: none;
+    padding: 0;
+    font-size: 10px;
+    width: 100px;
+}
+
+body.report-mode .category {
+    margin-top: 10px;
+}
+
+body.report-mode .category h2 {
+    font-size: 12px;
+    margin: 0 0 4px 0;
+    padding-bottom: 3px;
+    border-bottom-width: 1px;
+}
+
+body.report-mode .items {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 3px;
+}
+
+body.report-mode .item {
+    min-height: 55px;
+    padding: 3px 2px;
+    border-width: 1px;
+    border-radius: 3px;
+}
+
+body.report-mode .name {
+    font-size: 8px;
+    line-height: 1.1;
+}
+
+body.report-mode .amount {
+    font-size: 7px;
+}
+
+body.report-mode .status {
+    font-size: 15px;
+    min-height: 16px;
+}
+
+body.report-mode .bottom-buttons {
+    margin-top: 10px;
+}
+
+body.report-mode .reset-button {
+    display: none;
+}
+/* ===== 부족 품목 요약 ===== */
+
+.shortage-summary {
+    display: none;
+}
+
+body.report-mode .shortage-summary {
+    display: block;
+    margin-top: 12px;
+    padding: 8px;
+    border: 1px solid #333;
+}
+
+body.report-mode .shortage-summary h2 {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+}
+
+.shortage-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+}
+
+.shortage-item {
+    border: 1px solid #aaa;
+    padding: 5px;
+    font-size: 10px;
+    text-align: center;
+}
+
+.shortage-item strong {
+    font-size: 12px;
+}
     </style>
 </head>
 
@@ -220,9 +357,22 @@
 
     <div id="checklist"></div>
 
+<div id="shortage-summary" class="shortage-summary">
+    <h2>부족 품목 요약</h2>
+    <div id="shortage-list"></div>
+</div>
+
+<div class="bottom-buttons">
+
+    <button class="report-button" onclick="toggleReportMode()">
+        보고용 화면
+    </button>
+
     <button class="reset-button" onclick="resetChecklist()">
         전체 초기화
     </button>
+
+</div>
 
 </div>
 
@@ -393,6 +543,85 @@ document.getElementById("date").textContent =
     today.getFullYear() + ". " +
     String(today.getMonth() + 1).padStart(2, "0") + ". " +
     String(today.getDate()).padStart(2, "0");
+function createShortageSummary() {
+
+    const shortageList = document.getElementById("shortage-list");
+
+    shortageList.innerHTML = "";
+
+    const shortageItems = [];
+
+    document.querySelectorAll(".item").forEach(button => {
+
+        const statusNumber = Number(button.dataset.status);
+
+        // 2 = -1, 3 = -2, 4 = -3
+        if (statusNumber >= 2) {
+
+            const name =
+                button.querySelector(".name").textContent;
+
+            const status =
+                button.querySelector(".status").textContent;
+
+            shortageItems.push({
+                name: name,
+                status: status
+            });
+        }
+    });
+
+
+    if (shortageItems.length === 0) {
+
+        shortageList.innerHTML =
+            "<p>부족한 품목이 없습니다. ✓</p>";
+
+        return;
+    }
+
+
+    const grid = document.createElement("div");
+
+    grid.className = "shortage-grid";
+
+
+    shortageItems.forEach(item => {
+
+        const div = document.createElement("div");
+
+        div.className = "shortage-item";
+
+        div.innerHTML = `
+            ${item.name}
+            <br>
+            <strong>${item.status}</strong>
+        `;
+
+        grid.appendChild(div);
+    });
+
+
+    shortageList.appendChild(grid);
+}
+
+function toggleReportMode() {
+
+    document.body.classList.toggle("report-mode");
+
+    const button = document.querySelector(".report-button");
+
+    if (document.body.classList.contains("report-mode")) {
+
+        createShortageSummary();
+
+        button.textContent = "점검 화면으로 돌아가기";
+
+    } else {
+
+        button.textContent = "보고용 화면";
+    }
+}
 
 
 createChecklist();
