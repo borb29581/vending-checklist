@@ -324,6 +324,31 @@ body.report-mode .shortage-summary h2 {
 .shortage-item strong {
     font-size: 12px;
 }
+/* ===== 앱 설치 ===== */
+
+.install-area {
+    margin-bottom: 20px;
+}
+
+.install-button {
+    display: none;
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 8px;
+    background: #333;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.install-help {
+    margin: 6px 0 0;
+    font-size: 11px;
+    color: #666;
+    text-align: center;
+}
     </style>
 </head>
 
@@ -346,7 +371,16 @@ body.report-mode .shortage-summary h2 {
         * 주문 필요한 제품은 마감 보고시 '건의 사항'으로 요청주세요 :)
     </p>
 </div>
+<div id="install-area" class="install-area">
+    <button id="install-button" class="install-button">
+        📲 자판기 체크 앱 설치하기
+    </button>
 
+    <p class="install-help">
+        설치 버튼이 보이지 않으면 브라우저 메뉴(⋮)에서
+        '앱 설치' 또는 '홈 화면에 추가'를 선택해주세요.
+    </p>
+</div>
     <div class="info">
         <p>점검 일자: <strong id="date"></strong></p>
 
@@ -638,6 +672,42 @@ if ("serviceWorker" in navigator) {
             });
     });
 }
+let deferredPrompt;
+
+const installButton = document.getElementById("install-button");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+
+    event.preventDefault();
+
+    deferredPrompt = event;
+
+    installButton.style.display = "block";
+});
+
+
+installButton.addEventListener("click", async () => {
+
+    if (!deferredPrompt) {
+        return;
+    }
+
+    deferredPrompt.prompt();
+
+    await deferredPrompt.userChoice;
+
+    deferredPrompt = null;
+
+    installButton.style.display = "none";
+});
+
+
+window.addEventListener("appinstalled", () => {
+
+    installButton.style.display = "none";
+
+    deferredPrompt = null;
+});
 </script>
 
 </body>
