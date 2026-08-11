@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>서초점 자판기 재고 체크리스트</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .info {
+            margin-bottom: 24px;
+        }
+
+        .info input {
+            padding: 8px;
+            font-size: 16px;
+        }
+
+        .category {
+            margin-top: 30px;
+        }
+
+        .category h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
+        }
+        
+
+        .items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .item {
+            min-height: 110px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: white;
+            padding: 10px;
+            cursor: pointer;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+
+            text-align: center;
+            font-size: 15px;
+
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .item:hover {
+            background: #f0f0f0;
+        }
+
+        .name {
+            font-weight: bold;
+        }
+
+        .amount {
+            font-size: 14px;
+        }
+
+        .status {
+            font-size: 28px;
+            font-weight: bold;
+            min-height: 34px;
+        }
+
+        .reset-button {
+            margin-top: 30px;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .notice {
+            margin-bottom: 20px;
+            padding: 12px 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .notice p {
+            margin: 3px 0;
+}
+/* ===== 모바일 화면 최적화 ===== */
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 8px;
+    }
+
+    .container {
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    h1 {
+        font-size: 21px;
+        margin-bottom: 12px;
+    }
+
+    .notice {
+        font-size: 11px;
+        padding: 9px 10px;
+        margin-bottom: 12px;
+    }
+
+    .info {
+        font-size: 12px;
+        margin-bottom: 18px;
+    }
+
+    .info input {
+        padding: 6px;
+        font-size: 12px;
+        width: 130px;
+    }
+
+    .category {
+        margin-top: 20px;
+    }
+
+    .category h2 {
+        font-size: 15px;
+        margin-bottom: 8px;
+        padding-bottom: 5px;
+    }
+
+    .items {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+
+    .item {
+        min-height: 78px;
+        padding: 5px 3px;
+        border-width: 1px;
+        border-radius: 5px;
+    }
+
+    .name {
+        font-size: 10px;
+        line-height: 1.2;
+    }
+
+    .amount {
+        font-size: 9px;
+    }
+
+    .status {
+        font-size: 21px;
+        min-height: 23px;
+    }
+
+    .reset-button {
+        margin-top: 20px;
+        padding: 10px;
+        font-size: 12px;
+    }
+}  
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>서초점 자판기 재고 체크리스트</h1>
+
+    <div class="notice">
+    <p>
+        자판기 품목별 재고 현황을 파악하여 신속한 보충에 활용하세요!
+    </p>
+
+    <p>
+        (간식류 보관 위치 - 프린터 좌측 슬라이딩 도어 비번)
+    </p>
+
+    <p>
+        * 주문 필요한 제품은 마감 보고시 '건의 사항'으로 요청주세요 :)
+    </p>
+</div>
+
+    <div class="info">
+        <p>점검 일자: <strong id="date"></strong></p>
+
+        <label>
+            점검 매니저:
+            <input id="manager" type="text" placeholder="이름을 입력하세요">
+        </label>
+    </div>
+
+    <div id="checklist"></div>
+
+    <button class="reset-button" onclick="resetChecklist()">
+        전체 초기화
+    </button>
+
+</div>
+
+
+<script>
+
+const categories = [
+    {
+        name: "에너지 드링크",
+        items: [
+            ["모구모구", "총 4~5개"],
+            ["몬스터 울트라", "총 5개"],
+            ["몬스터 울트라", "총 5개"],
+            ["몬스터 망고", "총 5개"],
+            ["몬스터 망고", "총 5개"],
+            ["더킹 파인애플", "총 5개"],
+            ["더킹 복숭아", "총 5개"],
+            ["더킹 포도", "총 5개"]
+        ]
+    },
+
+    {
+        name: "뚱캔",
+        items: [
+            ["포카리", "총 5개"],
+            ["파워에이드", "총 5개"],
+            ["스프라이트", "총 5개"],
+            ["밀키스", "총 5개"],
+            ["펩시제로", "총 5개"],
+            ["코카콜라", "총 5개"],
+            ["코크제로", "총 5개"],
+            ["웰치스포도", "총 5개"]
+        ]
+    },
+
+    {
+        name: "얇은캔 · 팩음료",
+        items: [
+            ["비타오백", "총 6개"],
+            ["데자와", "총 6개"],
+            ["쌕쌕오렌지", "총 6개"],
+            ["데미소다 복숭아", "총 6개"],
+            ["데미소다 사과", "총 6개"],
+            ["피크닉사과", "총 6개"],
+            ["초코에몽", "총 6개"],
+            ["초코에몽", "총 9개"]
+        ]
+    },
+
+    {
+        name: "간식 1",
+        items: [
+            ["허니버터 아몬드", "총 6~7개"],
+            ["군옥수수 아몬드", "총 6~7개"],
+            ["킨더부에노", "총 6개"],
+            ["몰티져스", "총 6개"],
+            ["몽쉘", "총 7~8개"],
+            ["예감", "총 7~8개"],
+            ["마이구미", "총 6~7개"],
+            ["물티슈", "중간 정도"]
+        ]
+    },
+
+    {
+        name: "간식 2",
+        items: [
+            ["코피코캔디", "중간 정도"],
+            ["트윅스", "중간 정도"],
+            ["스니커즈", "중간 정도"],
+            ["이클립스", "중간 정도"],
+            ["구운감자", "중간 정도"],
+            ["포테이토 크리스프", "중간 정도"],
+            ["비쵸비", "중간 정도"],
+            ["물티슈", "중간 정도"]
+        ]
+    },
+
+    {
+        name: "박스 과자",
+        items: [
+            ["ABC초코쿠키", "총 4개"],
+            ["씨리얼 과자", "총 4개"],
+            ["초코송이", "총 4개"],
+            ["칸쵸", "총 4개"]
+        ]
+    }
+];
+
+
+const statusList = ["", "✓", "-1", "-2", "-3"];
+
+
+function createChecklist() {
+
+    const checklist = document.getElementById("checklist");
+
+    categories.forEach(category => {
+
+        const categoryDiv = document.createElement("div");
+        categoryDiv.className = "category";
+
+        const title = document.createElement("h2");
+        title.textContent = category.name;
+
+        const itemsDiv = document.createElement("div");
+        itemsDiv.className = "items";
+
+
+        category.items.forEach(item => {
+
+            const button = document.createElement("button");
+            button.className = "item";
+
+            button.dataset.status = "0";
+
+            button.innerHTML = `
+                <div class="name">${item[0]}</div>
+                <div class="amount">${item[1]}</div>
+                <div class="status"></div>
+            `;
+
+
+            button.addEventListener("click", () => {
+
+                let currentStatus = Number(button.dataset.status);
+
+                currentStatus++;
+
+                if (currentStatus >= statusList.length) {
+                    currentStatus = 0;
+                }
+
+                button.dataset.status = currentStatus;
+
+                button.querySelector(".status").textContent =
+                    statusList[currentStatus];
+            });
+
+
+            itemsDiv.appendChild(button);
+        });
+
+
+        categoryDiv.appendChild(title);
+        categoryDiv.appendChild(itemsDiv);
+
+        checklist.appendChild(categoryDiv);
+    });
+}
+
+
+function resetChecklist() {
+
+    const buttons = document.querySelectorAll(".item");
+
+    buttons.forEach(button => {
+
+        button.dataset.status = "0";
+
+        button.querySelector(".status").textContent = "";
+    });
+}
+
+
+const today = new Date();
+
+document.getElementById("date").textContent =
+    today.getFullYear() + ". " +
+    String(today.getMonth() + 1).padStart(2, "0") + ". " +
+    String(today.getDate()).padStart(2, "0");
+
+
+createChecklist();
+
+</script>
+
+</body>
+</html>
